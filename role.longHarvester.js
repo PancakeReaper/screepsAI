@@ -1,4 +1,4 @@
-var roleUpgrader = require("role.harvester");
+var roleHarvester = require("role.harvester");
 
 module.exports = {
 
@@ -32,7 +32,7 @@ module.exports = {
                         creep.signaledMove(target);
                     }
                 } else {
-                    roleUpgrader.run(creep);
+                    roleHarvester.run(creep);
                 }
             } else {
                 const exit = creep.room.findExitTo(creep.memory.home);

@@ -1,6 +1,5 @@
 
 var roleBuilder = require("role.builder");
-var cb = require("controlBoard");
 
 module.exports = {
 
@@ -12,13 +11,15 @@ module.exports = {
             // Sends creep to gather energy
             creep.getEnergy(true, true, true);
         } else {
-            // Repair ramparts to cb.repairWallsTo and anything other non-walls to max
+            // Repair anything thats not a wall or rampart to max
             const structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {filter: (s) =>
                 (s.structureType != STRUCTURE_WALL &&
+                s.structureType != STRUCTURE_RAMPART &&
                 s.hits < s.hitsMax) ||
-                (s.structureType != STRUCTURE_RAMPART &&
-                s.hits < cb.repairWallsTo)
+                (s.structureType == STRUCTURE_CONTAINER &&
+                s.hits < s.hitsMax)
             });
+//            console.log(structure);
             if (structure != undefined) {
                 if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
                     creep.signaledMove(structure);
