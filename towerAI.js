@@ -13,19 +13,28 @@ module.exports = {
             return;
         }
 
+        // Heal a creep if less than 50% health
+        let creep = tower.room.find(FIND_MY_CREEPS,
+            {filter: (c) => c.hits < c.hitsMax});
+        if (creep.length > 0) {
+            tower.heal(creep[0]);
+            return;
+        }
+
         // Attack the closest hostile creep
         let target = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
         if (target != undefined) {
             tower.attack(target);
             return;
+            //console.log("HOSTILE CREEP SPOTTED");
         }
 
         // Emergency repair if a structure has less than 5% health
-        targets = tower.room.find(FIND_MY_STRUCTURES,
+        targets = tower.room.find(FIND_STRUCTURES,
             {filter: (s) => s.structureType != STRUCTURE_WALL &&
                             s.structureType != STRUCTURE_RAMPART &&
                             s.hits / s.hitsMax < 0.05});
-        if (targets.length) {
+        if (targets.length > 0) {
             tower.repair(targets[0]);
         }
     }

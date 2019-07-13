@@ -7,16 +7,23 @@ module.exports = {
             creep.moveTo(creep.pos.findClosestByPath(exit));
         } else {
             const target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-//            const flag = Game.flags.Flag1;
- //           creep.signaledMove(flag);
+            //const temp = creep.pos.findClosestByRange(FIND_STRUCTURES, {filter: (s) => s.hits < 100});
             if (target != undefined) {
-                if (creep.attack(target) == ERR_NOT_IN_RANGE)
+                //creep.rangedAttack(temp);
+                creep.rangedAttack(target);
+
+                if (creep.pos.getRangeTo(target) < 3) {
+                    creep.moveAway(target);
+                } else if (creep.pos.getRangeTo(target) > 3) {
                     creep.signaledMove(target);
+                }
             } else {
                 const structure = creep.pos.findClosestByPath(FIND_STRUCTURES,
                     {filter: (s) => s.structureType == STRUCTURE_SPAWN});
-                if (creep.attack(structure) == ERR_NOT_IN_RANGE)
+                if (creep.rangedAttack(structure) == ERR_NOT_IN_RANGE)
                     creep.signaledMove(structure);
+                else if (creep.pos.getRangeTo(structure) < 3)
+                    creep.moveAway(structure);
             }
         }
     }
