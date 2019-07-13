@@ -1,15 +1,15 @@
 module.exports = {
-    MAX_POPULATION: 10,
+//Game.spawns.Spawn1.spawnCreep( [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY,  CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE], 'harvester' + String(Game.time), {memory: {role: 'harvester', working: false, home: "W35N3"}});
+    MAX_POPULATION: 11,
     // Permitted overflow if needed to meet minimum role numbers
     POPULATION_OVERFLOW: 3, // Typically keep at 2 for quarries
-    //  Harvester --v
-    // Repairer -> Builder -> Upgrader
-    //          LongHarvester -^
+    // LongHarvester -> Harvester --v
+    //               Repairer -> Builder -> Upgrader
     maxCreepCost: 1200,
     minimumNumberOfHarvesters: 2,
-    minimumNumberOfUpgraders: 2,
+    minimumNumberOfUpgraders: 1,
     minimumNumberOfBuilders: 2,
-    minimumNumberOfRepairers: 1,
+    minimumNumberOfRepairers: 2,
     minimumNumberOfLogistics: 1,
     minimumNumberOfLongHarvesters: 2,
     // And then 2 (at most) quarries
@@ -17,7 +17,7 @@ module.exports = {
 
     // Update here and in prototype.creep.roles
     listOfRoles: ['harvester', 'upgrader', 'builder', 'repairer', 'pioneer', 'quarry', 'longHarvester',
-                  'logistic', 'yoinkHarvester', 'attacker'],
+                  'logistic', 'yoinkHarvester', 'attacker', 'attackerRanged'],
 
     harvesterBodyComposition: [WORK, CARRY, CARRY, MOVE, MOVE],
     harvesterShowPath: true,
@@ -35,22 +35,23 @@ module.exports = {
     repairerBodyComposition: [WORK, CARRY, CARRY, CARRY, MOVE, MOVE],
     repairerShowPath: true,
     repairerPathColour: '#ff5555',
-    repairWallsTo: 24000,
+    repairWallsTo: 30000,
 
-    logisticBody: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
+    logisticBody: [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
 
     yoinkHarvesterBodyComposition: [CARRY, MOVE],
     yoinkHarvesterPathColour: '#55ffff',
 
     pioneerBody: [CLAIM, MOVE],
+    pioneerPathColour: '#55ffff',
 
     quarryBody: [WORK, WORK, WORK, WORK, WORK, MOVE],
 
     longHarvesterBodyComposition: [WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
-    longHarvesterShowPath: false,
+    longHarvesterShowPath: true,
     longHarvesterPathColour: '#ff55ff',
 
     attackerPathColour: '#000000',
 
-    partCost: {'move': 50, 'work': 100, 'carry': 50, 'attack': 80, 'ranged_attack': 150, 'heal': 250, 'claim': 600, 'tough': 10},
+    partCost: {'tough': 10, 'move': 50, 'carry': 50, 'attack': 80, 'work': 100, 'ranged_attack': 150, 'heal': 250, 'claim': 600},
 };

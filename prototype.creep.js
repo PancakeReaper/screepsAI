@@ -10,6 +10,9 @@ var roles = {
     logistic: require("role.logistic"),
     yoinkHarvester: require("role.yoinkHarvester"),
     attacker: require("role.attacker"),
+    attackerRanged: require("role.attackerRanged"),
+    pioneer: require("role.pioneer"),
+    healer: require("role.healer"),
 };
 
 /**
@@ -46,7 +49,7 @@ Creep.prototype.doRole = function() {
  * Updates various memory variables for each creep
  */
 Creep.prototype.update = function() {
-    if (cb.speakYourRole) this.room.visual.text(this.memory.role, this.pos, {color: cb[this.memory.role + "PathColour"]});
+    if (cb.speakYourRole) this.room.visual.text(this.ticksToLive, this.pos, {color: cb[this.memory.role + "PathColour"]});
 
     if (this.memory.working && this.carry.energy == 0) {
         this.memory.working = false;
@@ -67,6 +70,18 @@ Creep.prototype.signaledMove = function(target) {
 };
 
 /**
+ * Makes the creep move away from the target
+ * @param {RoomPosition | *.RoomPosition} target
+ * @return {number} see Creep.moveTo();
+ */
+Creep.prototype.moveAway = function(target) {
+    // Calulate the opposite direction from target
+    let direction = this.pos.getDirectionTo(target);
+    direction = direction == 4 ? 8 : (direction + 4) % 8;
+    return this.move(direction);
+};
+
+/**
  * Attempts to get Energy with the following priority:
  *     Dropped Energy -> Tombstones -> Containers -> Storage -> Sources
  * @param {Boolean} fromContainer Is allowed to collect energy from containers?
@@ -81,7 +96,7 @@ Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
     if (fromContainer) {
         const container = this.pos.findClosestByPath(FIND_STRUCTURES,
             {filter: (s) => s.structureType == STRUCTURE_CONTAINER &&
-                            s.store[RESOURCE_ENERGY] > this.carryCapacity});
+                            s.store[RESOURCE_ENERGY] > this.carryCapacity - _.sum(this.carry)});
         if (container != undefined) {
             if (this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 this.signaledMove(container);
@@ -116,16 +131,15 @@ Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
  * @returns {Boolean} true if a dropped resource or tombstone has been found
  */
 Creep.prototype.checkForDroppedResources = function() {
-    const droppedEnergy = this.pos.findInRange(FIND_DROPPED_RESOURCES, 25,
-        (e) => e.room.name == this.room.name);
-    if (droppedEnergy != undefined && droppedEnergy.length > 0) {
+    const droppedEnergy = this.pos.findInRange(FIND_DROPPED_RESOURCES, 20);
+    if (droppedEnergy != undefined && droppedEnergy.length > 0 &&
+            droppedEnergy.amount <= _.sum(this.carry) - this.carry) {
         if (this.pickup(droppedEnergy[0]) == ERR_NOT_IN_RANGE) {
             this.signaledMove(droppedEnergy[0]);
         }
         return true;
     }
-    const tombstones = this.pos.findInRange(FIND_TOMBSTONES, 25,
-        (t) => t.room.name == this.room.name);
+    const tombstones = this.pos.findInRange(FIND_TOMBSTONES, 20);
     if (tombstones != undefined && tombstones.length > 0 && tombstones[0].store[RESOURCE_ENERGY] > 0) {
         if (this.withdraw(tombstones[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             this.signaledMove(tombstones[0]);
@@ -133,6 +147,16 @@ Creep.prototype.checkForDroppedResources = function() {
         return true;
     }
     return false;
+};
+
+/**
+ * Assings a RoomPosition object to the creep's forceMove memory,
+ *   forcing the creep to move to that location
+ * @param {number} x X position to move to
+ * @param {number} y Y position to move to
+ */
+Creep.prototype.forceMove = function(x, y) {
+    this.memory.forceMove = new RoomPosition(x, y, "W34N1");
 };
 
 /**
