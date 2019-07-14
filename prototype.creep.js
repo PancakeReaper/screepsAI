@@ -126,14 +126,14 @@ Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
 };
 
 /**
- * Checks if there are dropped resources or tombstone within a 25 range
+ * Checks if there are dropped resources or tombstone within a 20 range
  *   from creep, if so then gather the dropped resource
  * @returns {Boolean} true if a dropped resource or tombstone has been found
  */
 Creep.prototype.checkForDroppedResources = function() {
     const droppedEnergy = this.pos.findInRange(FIND_DROPPED_RESOURCES, 20);
-    if (droppedEnergy != undefined && droppedEnergy.length > 0 &&
-            droppedEnergy.amount <= _.sum(this.carry) - this.carry) {
+    if (droppedEnergy != undefined && droppedEnergy.length > 0 ) {
+//            droppedEnergy[0].amount <= _.sum(this.carry) - this.carry) {
         if (this.pickup(droppedEnergy[0]) == ERR_NOT_IN_RANGE) {
             this.signaledMove(droppedEnergy[0]);
         }

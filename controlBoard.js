@@ -11,7 +11,7 @@ module.exports = {
     minimumNumberOfBuilders: 2,
     minimumNumberOfRepairers: 2,
     minimumNumberOfLogistics: 1,
-    minimumNumberOfLongHarvesters: 2,
+    minimumNumberOfLongHarvesters: 3,
     // And then 2 (at most) quarries
     speakYourRole: false,
 
