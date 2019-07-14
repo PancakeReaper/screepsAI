@@ -27,14 +27,12 @@ Creep.prototype.doRole = function() {
         this.moveTo(this.memory.forceMove.x, this.memory.forceMove.y);
         if (this.pos.isEqualTo(this.memory.forceMove.x, this.memory.forceMove.y))
             delete this.memory.forceMove;
+
     // Check if creep is in the home room AND doesn't have a target room before doing their role //
     } else if (this.room.name != this.memory.home && this.memory.target == undefined) {
         const exit = this.room.findExitTo(this.memory.home);
         this.moveTo(this.pos.findClosestByPath(exit));
-    // Check if creep has a target room AND is not working AND is in target room before doing their role //
-    //} else if (this.memory.target != undefined && this.room.name != this.memory.target) {
-    //    let exit = this.room.findExitTo(this.memory.target);
-    //    this.moveTo(this.pos.findClosestByPath(exit));
+
     // Creep doesn't have a forceMove issue and is in the right room, proceed with role tasks
     } else {
         const role = roles[this.memory.role];
@@ -66,7 +64,7 @@ Creep.prototype.signaledMove = function(target) {
     if (cb[this.memory.role + "ShowPath"] != undefined && cb[this.memory.role + "ShowPath"]) {
         this.room.visual.line(this.pos, target.pos, {color: cb[this.memory.role + "PathColour"]});
     }
-    return this.moveTo(target);
+    return this.moveTo(target, {reusePath: 3});
 };
 
 /**

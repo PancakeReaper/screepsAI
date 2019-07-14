@@ -44,11 +44,9 @@ StructureSpawn.prototype.spawnIfNeeded = function() {
 
         } else
         if (numberOfCreeps.harvester < cb.minimumNumberOfHarvesters) {
-            console.log("oh no");
             this.spawnRole('harvester', this.room.name);
 
         } else if (numberOfCreeps.upgrader < cb.minimumNumberOfUpgraders) {
-            console.log("oh no");
             this.spawnRole('upgrader', this.room.name);
 
         } else if (this.memory.claimRoom != undefined) {
@@ -89,7 +87,8 @@ StructureSpawn.prototype.spawnRole = function(role, home) {
         for (let part of bodyComp) {
             cost = cost + cb.partCost[part];
         }
-        const numOfComps = Math.min(Math.floor(this.room.energyAvailable/cost), Math.floor(cb.maxCreepCost/cost));
+//        const numOfComps = Math.min(Math.floor(this.room.energyAvailable/cost), Math.floor(cb.maxCreepCost/cost));
+        const numOfComps = Math.floor(this.room.energyAvailable/cost);
         for (let i = 0; i < numOfComps; i++) {
             body = body.concat(bodyComp);
         }
@@ -157,11 +156,6 @@ StructureSpawn.prototype.spawnHealer = function(target) {
     return this.spawnCreep( [MOVE, MOVE, MOVE, MOVE, HEAL, HEAL, HEAL, HEAL], "healer" + String(Game.time),
         {memory: {role: 'healer', home: this.room.name, target: target}});
 };
-
-/**
- * Check for nearby creeps to recycle
- // TODO: Make this function
- */
 
 /**
  * Prints to the console a summary of the # of creeps belonging to this spawner
