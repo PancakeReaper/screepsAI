@@ -10,10 +10,11 @@ module.exports = {
             // Sends creep to gather enerygy
             creep.getEnergy(true, true, true);
         } else {
-            // Make sure all extensions are filled before considering Spawners/Towers
+            // Make sure spawner and all extensions are filled before considering Towers
             const extension = creep.pos.findClosestByPath(FIND_MY_STRUCTURES,
-                {filter: (s) => (s.structureType == STRUCTURE_EXTENSION &&
-                                s.energy < s.energyCapacity)});
+                {filter: (s) => (s.structureType == STRUCTURE_EXTENSION ||
+                                s.structureType == STRUCTURE_SPAWN) &&
+                                s.energy < s.energyCapacity});
             if (extension != undefined) {
                 if (creep.transfer(extension, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.signaledMove(extension);
@@ -22,15 +23,13 @@ module.exports = {
             }
 
             // Find all Spawners and Towers in the room
-            let targets = creep.room.find(FIND_MY_STRUCTURES,
-                {filter: (s) => (s.structureType == STRUCTURE_SPAWN ||
-                                 s.structureType == STRUCTURE_TOWER)});
-            // Priority is givven to the ones the least full
-            targets = _.sortBy(targets, (t) => t.energy/t.energyCapacity);
+            let target = creep.pos.findClosestByPath(FIND_STRUCTURES,
+                {filter: (s) => s.structureType != STRUCTURE_LINK &&
+                                s.energy < s.energyCapacity});
 
-            if (targets.length > 0 && targets[0].energy != targets[0].energyCapacity) {
-                if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.signaledMove(targets[0]);
+            if (target != undefined) {
+                if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.signaledMove(target);
                 }
             } else {
                 roleBuilder.run(creep);
