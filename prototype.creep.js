@@ -88,37 +88,45 @@ Creep.prototype.moveAway = function(target) {
  */
 Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
     // Both these check function will return true if found
-    if (this.checkIfCarryingGO() || this.checkForDroppedResources())
+    if (this.checkIfCarryingMinerals() || this.checkForDroppedResources())
         return;
 
-    if (fromContainer) {
-        const container = this.pos.findClosestByPath(FIND_STRUCTURES,
-            {filter: (s) => s.structureType == STRUCTURE_CONTAINER &&
-                            s.store[RESOURCE_ENERGY] > this.carryCapacity - _.sum(this.carry)});
-        if (container != undefined) {
-            if (this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                this.signaledMove(container);
+    if (this.memory.source == undefined) {
+        // Set memory.source to a active source if available
+        if (fromSource) {
+            const source = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+            if (source != undefined)
+                this.memory.source = source.id;
+        }
+        // Rewrite memory.source to storage if available
+        if (fromStorage) {
+            const storage = this.room.storage;
+            if (storage != undefined && storage.store[RESOURCE_ENERGY] > this.capacity) {
+                this.memory.source = storage.id;
             }
-            return;
+        }
+        // Rewrite memory.source to a contianer if available
+        if (fromContainer) {
+            const container = this.pos.findClosestByPath(FIND_STRUCTURES,
+                {filter: (c) => c.structureType == STRUCTURE_CONTAINER &&
+                                c.store[RESOURCE_ENERGY] > this.carryCapacity - _.sum(this.carry)});
+            if (container != undefined)
+                this.memory.source = container.id;
         }
     }
-    if (fromStorage) {
-        if (this.room.storage != undefined && this.room.storage.store[RESOURCE_ENERGY] > this.carryCapacity) {
-            if (this.withdraw(this.room.storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                this.signaledMove(this.room.storage);
-            }
-            return;
-        }
-    }
-    if (fromSource) {
-        const energy_source = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE,
-            (s) => s.room.name == this.room.name);
-
-        if (energy_source != undefined) {
-            if (this.harvest(energy_source) == ERR_NOT_IN_RANGE) {
-                this.signaledMove(energy_source);
-            }
-            return;
+    // If a valid energy source is available go to it
+    if (this.memory.source != undefined) {
+        const source = Game.getObjectById(this.memory.source);
+        if (source.structureType != undefined) {
+            if (this.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+                this.signaledMove(source);
+            else
+                delete this.memory.source;
+        } else {
+            if (this.harvest(source) == ERR_NOT_IN_RANGE)
+                this.signaledMove(source);
+            else
+                delete this.memory.source;
         }
     }
 };
@@ -162,12 +170,18 @@ Creep.prototype.forceMove = function(x, y) {
  *   if so then immediately store the resource into storage
  * @returns {Boolean} true if carrying Ghodium Oxide, false otherwise
  */
-Creep.prototype.checkIfCarryingGO = function() {
-    if (this.carry[RESOURCE_GHODIUM_OXIDE] != undefined) {
-        if (this.transfer(this.room.storage, RESOURCE_GHODIUM_OXIDE) == ERR_NOT_IN_RANGE) {
-            this.signaledMove(this.room.storage);
-            return true;
+Creep.prototype.checkIfCarryingMinerals = function() {
+    // If carrying more than 1 type of resource
+    if (_.keys(this.carry).length > 1) {
+        // Tranfer all to storage
+        for (const resourceType in this.carry) {
+            if (resourceType != RESOURCE_ENERGY) {
+                if (this.transfer(this.room.storage, resourceType) == ERR_NOT_IN_RANGE) {
+                    this.signaledMove(this.room.storage);
+                }
+            }
         }
+        return true;
     }
     return false;
 };
