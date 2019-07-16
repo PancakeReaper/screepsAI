@@ -101,7 +101,7 @@ Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
         // Rewrite memory.source to storage if available
         if (fromStorage) {
             const storage = this.room.storage;
-            if (storage != undefined && storage.store[RESOURCE_ENERGY] > this.capacity) {
+            if (storage != undefined && storage.store[RESOURCE_ENERGY] > this.carryCapacity) {
                 this.memory.source = storage.id;
             }
         }
