@@ -17,7 +17,7 @@ module.exports = {
 
     // Update here and in prototype.creep.roles
     listOfRoles: ['harvester', 'upgrader', 'builder', 'repairer', 'pioneer', 'quarry', 'longHarvester',
-                  'logistic', 'yoinkHarvester', 'attacker', 'attackerRanged'],
+                  'logistic', 'yoinkHarvester', 'attacker', 'attackerRanged', 'healer'],
 
     harvesterBodyComposition: [WORK, CARRY, CARRY, MOVE, MOVE],
     harvesterShowPath: true,
@@ -38,6 +38,8 @@ module.exports = {
     repairWallsTo: 30000,
 
     logisticBody: [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
+    logisticShowPath: true,
+    logisticPathColour: '#55ffff',
 
     yoinkHarvesterBodyComposition: [CARRY, MOVE],
     yoinkHarvesterPathColour: '#55ffff',
