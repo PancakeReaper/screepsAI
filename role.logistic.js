@@ -17,6 +17,8 @@ module.exports = {
         }
 
         if (!creep.memory.working) {
+            if (creep.checkForDroppedResources() || creep.checkIfCarryingMinerals())
+                return;
             if (creep.memory.container == undefined) {
                 // Only get energy from containers that are close to being full
                 const container = creep.pos.findClosestByPath(FIND_STRUCTURES,
