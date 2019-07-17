@@ -5,7 +5,7 @@ module.exports = {
     POPULATION_OVERFLOW: 3, // Typically keep at 2 for quarries
     // LongHarvester -> Harvester --v
     //               Repairer -> Builder -> Upgrader
-    maxCreepCost: 1200,
+    maxCreepCost: 2000,
     minimumNumberOfHarvesters: 2,
     minimumNumberOfUpgraders: 1,
     minimumNumberOfBuilders: 2,
@@ -17,7 +17,7 @@ module.exports = {
 
     // Update here and in prototype.creep.roles
     listOfRoles: ['harvester', 'upgrader', 'builder', 'repairer', 'pioneer', 'quarry', 'longHarvester',
-                  'logistic', 'yoinkHarvester', 'attacker', 'attackerRanged', 'healer'],
+                  'logistic', 'yoinkHarvester', 'attacker', 'attackerRanged', 'healer', 'miner'],
 
     harvesterBodyComposition: [WORK, CARRY, CARRY, MOVE, MOVE],
     harvesterShowPath: true,
@@ -52,6 +52,8 @@ module.exports = {
     longHarvesterBodyComposition: [WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
     longHarvesterShowPath: true,
     longHarvesterPathColour: '#ff55ff',
+
+    minerBodyComposition: [WORK, CARRY, MOVE],
 
     attackerPathColour: '#000000',
 

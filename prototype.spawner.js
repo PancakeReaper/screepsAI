@@ -36,6 +36,7 @@ StructureSpawn.prototype.spawnIfNeeded = function() {
     let population = _.sum(_.values(numberOfCreeps));
     if (population < cb.MAX_POPULATION + cb.POPULATION_OVERFLOW) {
 
+        let extractor = this.room.find(FIND_MY_STRUCTURES, {filter: (s) => s.structureType == STRUCTURE_EXTRACTOR});
         // If there is at least 1 harvester and 1 container in the room then spawn Quarries
         const container = this.room.find(FIND_STRUCTURES, {filter: (s) => s.structureType == STRUCTURE_CONTAINER});
 //        console.log(this.room.name + ": \'" + Boolean(container.length) + "\'");
@@ -70,6 +71,9 @@ StructureSpawn.prototype.spawnIfNeeded = function() {
             this.spawnCreep(cb.logisticBody, 'logistic' + String(Game.time),
                 {memory: {role: 'logistic', working: false, home: this.room.name}});
             //this.spawnRole('logistic');
+
+        } else if (extractor.length > 0 && numberOfCreeps.miner < 1) {
+            this.spawnRole('miner', this.room.name);
         }
     }
 };
@@ -87,8 +91,8 @@ StructureSpawn.prototype.spawnRole = function(role, home) {
         for (let part of bodyComp) {
             cost = cost + cb.partCost[part];
         }
-//        const numOfComps = Math.min(Math.floor(this.room.energyAvailable/cost), Math.floor(cb.maxCreepCost/cost));
-        const numOfComps = Math.floor(this.room.energyAvailable/cost);
+        const numOfComps = Math.min(Math.floor(this.room.energyAvailable/cost), Math.floor(cb.maxCreepCost/cost));
+//        const numOfComps = Math.floor(this.room.energyAvailable/cost);
         for (let i = 0; i < numOfComps; i++) {
             body = body.concat(bodyComp);
         }
@@ -153,7 +157,7 @@ StructureSpawn.prototype.spawnAttackerRanged = function(target) {
  * @param {string} target A room name from which to attack creeps in
  */
 StructureSpawn.prototype.spawnHealer = function(target) {
-    return this.spawnCreep( [MOVE, MOVE, MOVE, MOVE, HEAL, HEAL, HEAL, HEAL], "healer" + String(Game.time),
+    return this.spawnCreep( [TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, HEAL, HEAL, HEAL, HEAL, HEAL], "healer" + String(Game.time),
         {memory: {role: 'healer', home: this.room.name, target: target}});
 };
 

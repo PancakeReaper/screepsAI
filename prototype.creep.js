@@ -13,6 +13,7 @@ var roles = {
     attackerRanged: require("role.attackerRanged"),
     pioneer: require("role.pioneer"),
     healer: require("role.healer"),
+    miner: require("role.miner"),
 };
 
 /**
@@ -145,10 +146,13 @@ Creep.prototype.checkForDroppedResources = function() {
         }
         return true;
     }
-    const tombstones = this.pos.findInRange(FIND_TOMBSTONES, 20);
-    if (tombstones != undefined && tombstones.length > 0 && tombstones[0].store[RESOURCE_ENERGY] > 0) {
-        if (this.withdraw(tombstones[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            this.signaledMove(tombstones[0]);
+    const tombstones = this.pos.findInRange(FIND_TOMBSTONES, 20, {filter:
+        (t) => _.sum(t.store) > 0});
+    if (tombstones != undefined && tombstones.length > 0) {
+        for (const resourceType in this.carry) {
+            if (this.withdraw(tombstones[0], resourceType) == ERR_NOT_IN_RANGE) {
+                this.signaledMove(tombstones[0]);
+            }
         }
         return true;
     }
