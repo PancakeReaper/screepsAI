@@ -7,7 +7,7 @@ module.exports = {
         const container = creep.pos.findClosestByPath(FIND_STRUCTURES,
             {filter: (s) => s.structureType == STRUCTURE_CONTAINER &&
                             (creep.pos.isEqualTo(s) || !s.pos.lookFor(LOOK_CREEPS).length) &&
-                            s.pos.findInRange(FIND_SOURCES, 2) != undefined &&
+                            s.pos.findInRange(FIND_SOURCES, 2).length > 0 &&
                             _.sum(s.store) < s.storeCapacity});
         const energy_source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
 
