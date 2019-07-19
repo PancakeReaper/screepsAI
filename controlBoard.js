@@ -1,17 +1,17 @@
 module.exports = {
 //Game.spawns.Spawn1.spawnCreep( [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY,  CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE], 'harvester' + String(Game.time), {memory: {role: 'harvester', working: false, home: "W35N3"}});
-    MAX_POPULATION: 11,
+    MAX_POPULATION: 10,
     // Permitted overflow if needed to meet minimum role numbers
     POPULATION_OVERFLOW: 3, // Typically keep at 2 for quarries
     // LongHarvester -> Harvester --v
     //               Repairer -> Builder -> Upgrader
-    maxCreepCost: 2000,
+    maxCreepCost: 1400,
     minimumNumberOfHarvesters: 2,
     minimumNumberOfUpgraders: 1,
-    minimumNumberOfBuilders: 2,
-    minimumNumberOfRepairers: 2,
+    minimumNumberOfBuilders: 1,
+    minimumNumberOfRepairers: 1,
     minimumNumberOfLogistics: 1,
-    minimumNumberOfLongHarvesters: 3,
+    minimumNumberOfLongHarvesters: 2,
     // And then 2 (at most) quarries
     speakYourRole: false,
 
