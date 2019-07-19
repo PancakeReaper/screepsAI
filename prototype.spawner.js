@@ -36,7 +36,7 @@ StructureSpawn.prototype.spawnIfNeeded = function() {
     let population = _.sum(_.values(numberOfCreeps));
     if (population < cb.MAX_POPULATION + cb.POPULATION_OVERFLOW) {
 
-        let extractor = this.room.find(FIND_MY_STRUCTURES, {filter: (s) => s.structureType == STRUCTURE_EXTRACTOR});
+        const extractor = this.room.find(FIND_MY_STRUCTURES, {filter: (s) => s.structureType == STRUCTURE_EXTRACTOR});
         // If there is at least 1 harvester and 1 container in the room then spawn Quarries
         const container = this.room.find(FIND_STRUCTURES, {filter: (s) => s.structureType == STRUCTURE_CONTAINER});
 //        console.log(this.room.name + ": \'" + Boolean(container.length) + "\'");
@@ -63,7 +63,7 @@ StructureSpawn.prototype.spawnIfNeeded = function() {
         } else if (numberOfCreeps.repairer < cb.minimumNumberOfRepairers) {
             this.spawnRole('repairer', this.room.name);
 
-        } else if (numberOfCreeps.longHarvester < cb.minimumNumberOfLongHarvesters) {
+        } else if (this.memory.target != undefined && numberOfCreeps.longHarvester < cb.minimumNumberOfLongHarvesters) {
             this.spawnRole('longHarvester', this.room.name);
 
         // Will only spawn a logistic if there is a Storage structure in the room
@@ -72,7 +72,7 @@ StructureSpawn.prototype.spawnIfNeeded = function() {
                 {memory: {role: 'logistic', working: false, home: this.room.name}});
             //this.spawnRole('logistic');
 
-        } else if (extractor.length > 0 && numberOfCreeps.miner < 1) {
+        } else if (extractor.length > 0 && numberOfCreeps.miner < 1 && extractor[0].pos.lookFor(LOOK_MINERALS)[0].mineralAmount > 0) {
             this.spawnRole('miner', this.room.name);
         }
     }
