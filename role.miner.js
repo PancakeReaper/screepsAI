@@ -1,4 +1,3 @@
-var roleHarvester = require("role.harvester");
 
 module.exports = {
 
