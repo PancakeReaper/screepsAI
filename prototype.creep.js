@@ -50,9 +50,9 @@ Creep.prototype.doRole = function() {
 Creep.prototype.update = function() {
     if (cb.speakYourRole) this.room.visual.text(this.ticksToLive, this.pos, {color: cb[this.memory.role + "PathColour"]});
 
-    if (this.memory.working && this.carry.energy == 0) {
+    if (this.memory.working && _.sum(this.carry) == 0) {
         this.memory.working = false;
-    } else if (!this.memory.working && this.carry.energy >= this.carryCapacity) {
+    } else if (!this.memory.working && _.sum(this.carry) >= this.carryCapacity) {
         this.memory.working = true;
     }
 };
@@ -149,7 +149,7 @@ Creep.prototype.checkForDroppedResources = function() {
     const tombstones = this.pos.findInRange(FIND_TOMBSTONES, 20, {filter:
         (t) => _.sum(t.store) > 0});
     if (tombstones != undefined && tombstones.length > 0) {
-        for (const resourceType in this.carry) {
+        for (const resourceType in tombstones[0].store) {
             if (this.withdraw(tombstones[0], resourceType) == ERR_NOT_IN_RANGE) {
                 this.signaledMove(tombstones[0]);
             }
