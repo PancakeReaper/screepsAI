@@ -17,11 +17,12 @@ module.exports = {
         }
         const container = Game.getObjectById(creep.memory.container);
 
-        if (!creep.pos.isEqualTo(container.pos))
+        if (!creep.pos.isEqualTo(container.pos)) {
             creep.signaledMove(container);
-        else {
+            delete creep.memory.container;
+        } else {
             const energy_source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
-            if (creep.harvest(energy_source) == ERR_NOT_IN_RANGE) {
+            if (_.sum(container.store) < container.storeCapacity && creep.harvest(energy_source) == ERR_NOT_IN_RANGE) {
                 creep.say("Out of range");
             } else {
                 creep.room.visual.text(_.sum(container.store) + "/" + container.storeCapacity, creep.pos);
