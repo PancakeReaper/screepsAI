@@ -17,13 +17,13 @@ module.exports = {
         }
 
         if (!creep.memory.working) {
-            if (creep.checkForDroppedResources() || creep.checkIfCarryingMinerals())
+            if (creep.checkForDroppedResources(50) || creep.checkIfCarryingMinerals())
                 return;
             if (creep.memory.container == undefined) {
                 // Only get energy from containers that are close to being full
                 const container = creep.pos.findClosestByPath(FIND_STRUCTURES,
                     {filter: (s) => s.structureType == STRUCTURE_CONTAINER &&
-                                    s.store[RESOURCE_ENERGY] / s.storeCapacity > 0.75});
+                                    s.store[RESOURCE_ENERGY] / s.storeCapacity > 0.6});
                 if (container != undefined)
                     creep.memory.container = container.id;
             }
