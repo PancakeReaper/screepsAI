@@ -89,7 +89,7 @@ Creep.prototype.moveAway = function(target) {
  */
 Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
     // Both these check function will return true if found
-    if (this.checkIfCarryingMinerals() || this.checkForDroppedResources())
+    if (this.checkIfCarryingMinerals() || this.checkForDroppedResources(20))
         return;
 
     if (this.memory.source == undefined) {
@@ -118,7 +118,7 @@ Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
     // If a valid energy source is available go to it
     if (this.memory.source != undefined) {
         const source = Game.getObjectById(this.memory.source);
-        if (source.structureType != undefined) {
+        if (source != undefined && source.structureType != undefined) {
             if (this.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
                 this.signaledMove(source);
             else
@@ -137,8 +137,8 @@ Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
  *   from creep, if so then gather the dropped resource
  * @returns {Boolean} true if a dropped resource or tombstone has been found
  */
-Creep.prototype.checkForDroppedResources = function() {
-    const droppedEnergy = this.pos.findInRange(FIND_DROPPED_RESOURCES, 20);
+Creep.prototype.checkForDroppedResources = function(range) {
+    const droppedEnergy = this.pos.findInRange(FIND_DROPPED_RESOURCES, range);
     if (droppedEnergy != undefined && droppedEnergy.length > 0 ) {
 //            droppedEnergy[0].amount <= _.sum(this.carry) - this.carry) {
         if (this.pickup(droppedEnergy[0]) == ERR_NOT_IN_RANGE) {
@@ -146,7 +146,7 @@ Creep.prototype.checkForDroppedResources = function() {
         }
         return true;
     }
-    const tombstones = this.pos.findInRange(FIND_TOMBSTONES, 20, {filter:
+    const tombstones = this.pos.findInRange(FIND_TOMBSTONES, range, {filter:
         (t) => _.sum(t.store) > 0});
     if (tombstones != undefined && tombstones.length > 0) {
         for (const resourceType in tombstones[0].store) {
