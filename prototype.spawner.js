@@ -74,6 +74,14 @@ StructureSpawn.prototype.spawnIfNeeded = function() {
 
         } else if (extractor.length > 0 && numberOfCreeps.miner < 1 && extractor[0].pos.lookFor(LOOK_MINERALS)[0].mineralAmount > 0) {
             this.spawnRole('miner', this.room.name);
+
+        } else if (this.memory.target != undefined && Game.rooms[this.memory.target] != undefined &&
+                Game.rooms[this.memory.target].controller.my == false &&
+                (Game.rooms[this.memory.target].controller.reservation == undefined ||
+                Game.rooms[this.memory.target].controller.reservation.ticksToEnd < 100) &&
+                numberOfCreeps.reserver < 1) {
+            this.spawnCreep(cb.reserverBody, 'reserver' + String(Game.time),
+                {memory: {role: 'reserver', home: this.room.name, target: this.memory.target}});
         }
     }
 };

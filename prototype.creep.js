@@ -14,6 +14,7 @@ var roles = {
     pioneer: require("role.pioneer"),
     healer: require("role.healer"),
     miner: require("role.miner"),
+    reserver: require("role.reserver"),
 };
 
 /**

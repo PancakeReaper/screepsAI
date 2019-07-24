@@ -17,7 +17,7 @@ module.exports = {
 
     // Update here and in prototype.creep.roles
     listOfRoles: ['harvester', 'upgrader', 'builder', 'repairer', 'pioneer', 'quarry', 'longHarvester',
-                  'logistic', 'yoinkHarvester', 'attacker', 'attackerRanged', 'healer', 'miner'],
+                  'logistic', 'yoinkHarvester', 'attacker', 'attackerRanged', 'healer', 'miner', 'reserver'],
 
     harvesterBodyComposition: [WORK, CARRY, CARRY, MOVE, MOVE],
     harvesterShowPath: true,
@@ -54,6 +54,8 @@ module.exports = {
     longHarvesterPathColour: '#ff55ff',
 
     minerBodyComposition: [WORK, CARRY, MOVE],
+
+    reserverBody: [MOVE, MOVE, CLAIM, CLAIM],
 
     attackerPathColour: '#000000',
 
