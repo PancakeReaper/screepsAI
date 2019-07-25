@@ -18,15 +18,15 @@ module.exports = {
                     creep.signaledMove(minerals);
             }
         } else {
-            // Deposit minerals in storage
-            if (creep.memory.storage == undefined) {
-                const storage = creep.room.storage;
-                if (storage != undefined)
-                    creep.memory.storage = storage.id;
+            // Deposit minerals in terminal
+            if (creep.memory.terminal == undefined) {
+                const terminal = creep.room.terminal;
+                if (terminal != undefined)
+                    creep.memory.terminal = terminal.id;
             }
 
             // Transfer energy to the target specified in memory, afterwards get new target
-            const target = Game.getObjectById(creep.memory.storage);
+            const target = Game.getObjectById(creep.memory.terminal);
             for (const resourceType in creep.carry) {
                 if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
                     creep.signaledMove(target);
