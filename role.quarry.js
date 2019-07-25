@@ -22,10 +22,14 @@ module.exports = {
             delete creep.memory.container;
         } else {
             const energy_source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
-            if (_.sum(container.store) < container.storeCapacity && creep.harvest(energy_source) == ERR_NOT_IN_RANGE) {
-                creep.say("Out of range");
+            if (_.sum(container.store) < container.storeCapacity) {
+                if (creep.harvest(energy_source) == ERR_NOT_IN_RANGE) {
+                    creep.say("Out of range");
+                } else {
+                    creep.room.visual.text(_.sum(container.store) + "/" + container.storeCapacity, creep.pos);
+                }
             } else {
-                creep.room.visual.text(_.sum(container.store) + "/" + container.storeCapacity, creep.pos);
+                delete creep.memory.container;
             }
         }
     }
