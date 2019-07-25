@@ -17,7 +17,7 @@ module.exports = {
         }
 
         if (!creep.memory.working) {
-            if (creep.checkForDroppedResources(50) || creep.checkIfCarryingMinerals())
+            if (creep.checkForDroppedResources(50))
                 return;
             if (creep.memory.container == undefined) {
                 // Only get energy from containers that are close to being full
@@ -35,24 +35,42 @@ module.exports = {
                 } else {
                     delete creep.memory.container;
                 }
+            } else if (creep.room.storage != undefined && creep.room.terminal != undefined) {
+                for (const resourceType in creep.room.storage.store) {
+                    if (resourceType != RESOURCE_ENERGY) {
+                        if (creep.withdraw(creep.room.storage, resourceType) == ERR_NOT_IN_RANGE)
+                            creep.signaledMove(creep.room.storage);
+                        else
+                            creep.memory.storage = creep.room.terminal.id;
+                    }
+                }
             }
         } else {
             if (creep.memory.storage == undefined) {
                 // Store energy in the room's storage
-                const storage = creep.pos.findClosestByPath(FIND_STRUCTURES,
-                    {filter: (s) => (s.structureType == STRUCTURE_EXTENSION &&
-                                    s.energy < s.energyCapacity) ||
-                                    s.structureType == STRUCTURE_STORAGE});
-                if (storage != undefined)
+                const storage = creep.room.storage;
+                const terminal = creep.room.terminal;
+                if (terminal != undefined && storage != undefined) {
+                    if (_.sum(storage.store) / storage.storeCapacity < _.sum(terminal.store) / terminal.storeCapacity)
+                        creep.memory.storage = storage.id;
+                    else
+                        creep.memory.storage = terminal.id;
+                } else if (storage != undefined) {
                     creep.memory.storage = storage.id;
+                } else if (terminal != undefined) {
+                    creep.memory.storage = terminal.id;
+                }
+
             }
 
             if (creep.memory.storage != undefined) {
                 const target = Game.getObjectById(creep.memory.storage);
-                if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.signaledMove(target);
-                } else {
-                    delete creep.memory.storage;
+                for (const resourceType in creep.carry) {
+                    if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
+                        creep.signaledMove(target);
+                    } else {
+                        delete creep.memory.storage;
+                    }
                 }
             }
         }
