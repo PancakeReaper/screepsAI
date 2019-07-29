@@ -17,24 +17,26 @@ module.exports = {
         }
 
         if (!creep.memory.working) {
-            if (creep.checkForDroppedResources(50))
+            if (creep.checkForDroppedResources(50, true))
                 return;
             if (creep.memory.container == undefined) {
                 // Only get energy from containers that are close to being full
                 const container = creep.pos.findClosestByPath(FIND_STRUCTURES,
                     {filter: (s) => s.structureType == STRUCTURE_CONTAINER &&
-                                    s.store[RESOURCE_ENERGY] / s.storeCapacity > 0.6});
+                                    _.sum(s.store) / s.storeCapacity > 0.6});
                 if (container != undefined)
                     creep.memory.container = container.id;
             }
 
             if (creep.memory.container != undefined) {
                 const container = Game.getObjectById(creep.memory.container);
-                if (creep.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.signaledMove(container);
-                } else {
-                    delete creep.memory.container;
-                }
+                    for (const resourceType in container.store) {
+                        if (creep.withdraw(container, resourceType) == ERR_NOT_IN_RANGE) {
+                            creep.signaledMove(container);
+                        } else {
+                            delete creep.memory.container;
+                        }
+                    }
             } else if (creep.room.storage != undefined && creep.room.terminal != undefined) {
                 for (const resourceType in creep.room.storage.store) {
                     if (resourceType != RESOURCE_ENERGY) {
