@@ -22,11 +22,12 @@ module.exports = {
 
                 // If all extensions/spawns are filled then find other structures
                 else {
-                    const structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES,
+                    let structures = creep.room.find(FIND_MY_STRUCTURES,
                         {filter: (s) => s.structureType != STRUCTURE_LINK &&
                                         s.energy < s.energyCapacity});
-                    if (structure != undefined)
-                        creep.memory.energy = structure.id;
+                    structures = _.sortBy(structures, (s) => s.energy / s.energyCapacity);
+                    if (structures != undefined && structures.length > 0)
+                        creep.memory.energy = structures[0].id;
                     else
                         roleBuilder.run(creep);
                 }
