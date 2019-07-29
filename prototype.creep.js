@@ -66,7 +66,7 @@ Creep.prototype.signaledMove = function(target) {
     if (cb[this.memory.role + "ShowPath"] != undefined && cb[this.memory.role + "ShowPath"]) {
         this.room.visual.line(this.pos, target.pos, {color: cb[this.memory.role + "PathColour"]});
     }
-    return this.moveTo(target, {reusePath: 3});
+    return this.moveTo(target, {reusePath: 5});
 };
 
 /**
@@ -90,7 +90,7 @@ Creep.prototype.moveAway = function(target) {
  */
 Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
     // Both these check function will return true if found
-    if (this.checkIfCarryingMinerals() || this.checkForDroppedResources(20))
+    if (this.checkIfCarryingMinerals() || this.checkForDroppedResources(20), false)
         return;
 
     if (this.memory.source == undefined) {
@@ -136,28 +136,46 @@ Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
 /**
  * Checks if there are dropped resources or tombstone within a 20 range
  *   from creep, if so then gather the dropped resource
+ * @param {Number} range Specify the range to look for dropped resources
+ * @param {Boolean} pickupMinerals Whether or not to pick up minerals from tombstone
  * @returns {Boolean} true if a dropped resource or tombstone has been found
  */
-Creep.prototype.checkForDroppedResources = function(range) {
-    const droppedEnergy = this.pos.findInRange(FIND_DROPPED_RESOURCES, range);
-    if (droppedEnergy != undefined && droppedEnergy.length > 0 ) {
+Creep.prototype.checkForDroppedResources = function(range, pickupMinerals) {
+    let droppedEnergy = this.pos.findInRange(FIND_DROPPED_RESOURCES, range);
+    if (!pickupMinerals)
+        droppedEnergy = _.filter(droppedEnergy, (i) => i.resourceType == RESOURCE_ENERGY);
+    if (droppedEnergy != undefined && droppedEnergy.length > 0) {
 //            droppedEnergy[0].amount <= _.sum(this.carry) - this.carry) {
         if (this.pickup(droppedEnergy[0]) == ERR_NOT_IN_RANGE) {
             this.signaledMove(droppedEnergy[0]);
         }
         return true;
     }
-    const tombstones = this.pos.findInRange(FIND_TOMBSTONES, range, {filter:
-        (t) => _.sum(t.store) > 0});
-    if (tombstones != undefined && tombstones.length > 0) {
-        for (const resourceType in tombstones[0].store) {
-            if (this.withdraw(tombstones[0], resourceType) == ERR_NOT_IN_RANGE) {
+
+    let tombstones;
+    if (!pickupMinerals) {
+        tombstones = this.pos.findInRange(FIND_TOMBSTONES, range, {filter:
+            (t) => t.store[RESOURCE_ENERGY] > 0});
+        if (tombstones != undefined && tombstones.length > 0) {
+            if (this.withdraw(tombstones[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 this.signaledMove(tombstones[0]);
             }
+            return true;
         }
-        return true;
+        return false;
+    } else {
+        tombstones = this.pos.findInRange(FIND_TOMBSTONES, range, {filter:
+            (t) => _.sum(t.store) > 0});
+        if (tombstones != undefined && tombstones.length > 0) {
+            for (const resourceType in tombstones[0].store) {
+                if (this.withdraw(tombstones[0], resourceType) == ERR_NOT_IN_RANGE) {
+                    this.signaledMove(tombstones[0]);
+                }
+            }
+            return true;
+        }
+        return false;
     }
-    return false;
 };
 
 /**
@@ -176,17 +194,23 @@ Creep.prototype.forceMove = function(x, y) {
  * @returns {Boolean} true if carrying Ghodium Oxide, false otherwise
  */
 Creep.prototype.checkIfCarryingMinerals = function() {
-    // If carrying more than 1 type of resource
-    if (_.keys(this.carry).length > 1) {
         // Tranfer all to storage
-        for (const resourceType in this.carry) {
-            if (resourceType != RESOURCE_ENERGY) {
+    for (const resourceType in this.carry) {
+        if (resourceType != RESOURCE_ENERGY) {
+            if (this.room.terminal != undefined) {
+                if (this.transfer(this.room.terminal, resourceType) == ERR_NOT_IN_RANGE) {
+                    this.signaledMove(this.room.terminal);
+                }
+                return true;
+            } else if (this.room.storage != undefined) {
                 if (this.transfer(this.room.storage, resourceType) == ERR_NOT_IN_RANGE) {
                     this.signaledMove(this.room.storage);
                 }
+                return true;
+            } else {
+                return false;
             }
         }
-        return true;
     }
     return false;
 };
