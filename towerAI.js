@@ -3,20 +3,20 @@ var cb = require('controlBoard');
 module.exports = {
     run: function(tower) {
 
-        // Heal a creep if less than 50% health
-        let creep = tower.room.find(FIND_MY_CREEPS,
-            {filter: (c) => c.hits < c.hitsMax});
-        if (creep.length > 0) {
-            tower.heal(creep[0]);
-            return;
-        }
-
         // Attack the closest hostile creep
         let target = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
         if (target != undefined) {
             tower.attack(target);
             return;
             //console.log("HOSTILE CREEP SPOTTED");
+        }
+
+        // Heal a creep if less than 100% health
+        let creep = tower.room.find(FIND_MY_CREEPS,
+            {filter: (c) => c.hits < c.hitsMax});
+        if (creep.length > 0) {
+            tower.heal(creep[0]);
+            return;
         }
 
         // Emergency repair if a structure has less than 5% health
