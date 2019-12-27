@@ -30,12 +30,12 @@ Creep.prototype.doRole = function() {
         if (this.pos.isEqualTo(this.memory.forceMove.x, this.memory.forceMove.y))
             delete this.memory.forceMove;
 
-    // Check if creep is in the home room AND doesn't have a target room before doing their role //
+    // Make sure creep is in home room before doing role //
     } else if (this.room.name != this.memory.home && this.memory.target == undefined) {
         const exit = this.room.findExitTo(this.memory.home);
         this.moveTo(this.pos.findClosestByPath(exit));
 
-    // Creep doesn't have a forceMove issue and is in the right room, proceed with role tasks
+    // Creep doesn't have a forceMove issue and is in the right room, proceed with role tasks //
     } else {
         const role = roles[this.memory.role];
         if (role != undefined)
@@ -51,9 +51,9 @@ Creep.prototype.doRole = function() {
 Creep.prototype.update = function() {
     if (cb.speakYourRole) this.room.visual.text(this.ticksToLive, this.pos, {color: cb[this.memory.role + "PathColour"]});
 
-    if (this.memory.working && _.sum(this.carry) == 0) {
+    if (this.memory.working && _.sum(this.store) == 0) {
         this.memory.working = false;
-    } else if (!this.memory.working && _.sum(this.carry) >= this.carryCapacity) {
+    } else if (!this.memory.working && _.sum(this.store) >= this.store.getCapacity()) {
         this.memory.working = true;
     }
 };
@@ -90,7 +90,7 @@ Creep.prototype.moveAway = function(target) {
  */
 Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
     // Both these check function will return true if found
-    if (this.checkIfCarryingMinerals() || this.checkForDroppedResources(20), false)
+    if (this.checkIfCarryingMinerals() || this.checkForDroppedResources(20, false))
         return;
 
     if (this.memory.source == undefined) {
@@ -102,8 +102,12 @@ Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
         }
         // Rewrite memory.source to storage if available
         if (fromStorage) {
+            const terminal = this.room.terminal;
+            if (terminal != undefined && terminal.store[RESOURCE_ENERGY] > this.store.getFreeCapacity()) {
+                this.memory.source = terminal.id;
+            }
             const storage = this.room.storage;
-            if (storage != undefined && storage.store[RESOURCE_ENERGY] > this.carryCapacity) {
+            if (storage != undefined && storage.store[RESOURCE_ENERGY] > this.store.getFreeeCapacity()) {
                 this.memory.source = storage.id;
             }
         }
@@ -111,7 +115,7 @@ Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
         if (fromContainer) {
             const container = this.pos.findClosestByPath(FIND_STRUCTURES,
                 {filter: (c) => c.structureType == STRUCTURE_CONTAINER &&
-                                c.store[RESOURCE_ENERGY] > this.carryCapacity - _.sum(this.carry)});
+                                c.store[RESOURCE_ENERGY] > this.store.getFreeCapacity()});
             if (container != undefined)
                 this.memory.source = container.id;
         }
@@ -145,7 +149,6 @@ Creep.prototype.checkForDroppedResources = function(range, pickupMinerals) {
     if (!pickupMinerals)
         droppedEnergy = _.filter(droppedEnergy, (i) => i.resourceType == RESOURCE_ENERGY);
     if (droppedEnergy != undefined && droppedEnergy.length > 0) {
-//            droppedEnergy[0].amount <= _.sum(this.carry) - this.carry) {
         if (this.pickup(droppedEnergy[0]) == ERR_NOT_IN_RANGE) {
             this.signaledMove(droppedEnergy[0]);
         }
@@ -179,23 +182,13 @@ Creep.prototype.checkForDroppedResources = function(range, pickupMinerals) {
 };
 
 /**
- * Assings a RoomPosition object to the creep's forceMove memory,
- *   forcing the creep to move to that location
- * @param {number} x X position to move to
- * @param {number} y Y position to move to
- */
-Creep.prototype.forceMove = function(x, y) {
-    this.memory.forceMove = new RoomPosition(x, y, "W34N1");
-};
-
-/**
  * Checks if creep is carrying Ghodium Oxide resource,
  *   if so then immediately store the resource into storage
  * @returns {Boolean} true if carrying Ghodium Oxide, false otherwise
  */
 Creep.prototype.checkIfCarryingMinerals = function() {
         // Tranfer all to storage
-    for (const resourceType in this.carry) {
+    for (const resourceType in this.store) {
         if (resourceType != RESOURCE_ENERGY) {
             if (this.room.terminal != undefined) {
                 if (this.transfer(this.room.terminal, resourceType) == ERR_NOT_IN_RANGE) {
@@ -213,4 +206,14 @@ Creep.prototype.checkIfCarryingMinerals = function() {
         }
     }
     return false;
+};
+
+/**
+ * Assings a RoomPosition object to the creep's forceMove memory,
+ *   forcing the creep to move to that location
+ * @param {number} x X position to move to
+ * @param {number} y Y position to move to
+ */
+Creep.prototype.forceMove = function(x, y, room=this.room.name) {
+    this.memory.forceMove = new RoomPosition(x, y, room);
 };

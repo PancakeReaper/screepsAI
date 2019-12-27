@@ -9,7 +9,7 @@ module.exports = {
         const energy = creep.room.find(FIND_STRUCTURES,
             {filter: (s) => (s.structureType == STRUCTURE_EXTENSION ||
                             s.structureType == STRUCTURE_SPAWN) &&
-                            s.energy < s.energyCapacity});
+                            s.store[RESOURCE_ENERGY] < s.store.getCapacity([RESOURCE_ENERGY])});
 
         if (energy.length > 0) {
             roleHarvester.run(creep);
@@ -23,7 +23,7 @@ module.exports = {
                 // Only get energy from containers that are close to being full
                 const container = creep.pos.findClosestByPath(FIND_STRUCTURES,
                     {filter: (s) => s.structureType == STRUCTURE_CONTAINER &&
-                                    _.sum(s.store) / s.storeCapacity > 0.6});
+                                    s.store.getUsedCapacity() / s.store.getCapacity() > 0.6});
                 if (container != undefined)
                     creep.memory.container = container.id;
             }
@@ -53,7 +53,8 @@ module.exports = {
                 const storage = creep.room.storage;
                 const terminal = creep.room.terminal;
                 if (terminal != undefined && storage != undefined) {
-                    if (_.sum(storage.store) / storage.storeCapacity < _.sum(terminal.store) / terminal.storeCapacity)
+                    if (storage.store.getUsedCapacity() / storage.store.getCapacity() <
+                            terminal.store.getUsedCapacity() / terminal.store.getCapacity())
                         creep.memory.storage = storage.id;
                     else
                         creep.memory.storage = terminal.id;
@@ -67,7 +68,7 @@ module.exports = {
 
             if (creep.memory.storage != undefined) {
                 const target = Game.getObjectById(creep.memory.storage);
-                for (const resourceType in creep.carry) {
+                for (const resourceType in creep.store) {
                     if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
                         creep.signaledMove(target);
                     } else {

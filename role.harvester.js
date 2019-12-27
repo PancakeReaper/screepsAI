@@ -16,7 +16,7 @@ module.exports = {
                 const extension = creep.pos.findClosestByPath(FIND_MY_STRUCTURES,
                     {filter: (s) => (s.structureType == STRUCTURE_EXTENSION ||
                                     s.structureType == STRUCTURE_SPAWN) &&
-                                    s.energy < s.energyCapacity});
+                                    s.store[RESOURCE_ENERGY] < s.store.getCapacity([RESOURCE_ENERGY])});
                 if (extension != undefined)
                     creep.memory.energy = extension.id;
 
@@ -24,8 +24,8 @@ module.exports = {
                 else {
                     let structures = creep.room.find(FIND_MY_STRUCTURES,
                         {filter: (s) => s.structureType != STRUCTURE_LINK &&
-                                        s.energy < s.energyCapacity});
-                    structures = _.sortBy(structures, (s) => s.energy / s.energyCapacity);
+                                        s.store != undefined && s.store[RESOURCE_ENERGY] < s.store.getCapacity(RESOURCE_ENERGY)});
+                    structures = _.sortBy(structures, (s) => s.store[RESOURCE_ENERGY] / s.store.getCapacity(RESOURCE_ENERGY));
                     if (structures != undefined && structures.length > 0)
                         creep.memory.energy = structures[0].id;
                     else

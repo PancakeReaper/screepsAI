@@ -27,7 +27,7 @@ module.exports = {
 
             // Transfer energy to the target specified in memory, afterwards get new target
             const target = Game.getObjectById(creep.memory.terminal);
-            for (const resourceType in creep.carry) {
+            for (const resourceType in creep.store) {
                 if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
                     creep.signaledMove(target);
                 }

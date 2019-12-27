@@ -9,7 +9,7 @@ module.exports = {
                 {filter: (s) => s.structureType == STRUCTURE_CONTAINER &&
                                 (creep.pos.isEqualTo(s) || !s.pos.lookFor(LOOK_CREEPS).length) &&
                                 s.pos.findInRange(FIND_SOURCES, 2).length > 0 &&
-                                _.sum(s.store) < s.storeCapacity});
+                                s.store.getUsedCapacity() < s.store.getCapacity()});
             if (container != undefined)
                 creep.memory.container = container.id;
             else
@@ -22,11 +22,13 @@ module.exports = {
             delete creep.memory.container;
         } else {
             const energy_source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
-            if (_.sum(container.store) < container.storeCapacity) {
+            if (container.store.getUsedCapacity() < container.store.getCapacity()) {
                 if (creep.harvest(energy_source) == ERR_NOT_IN_RANGE) {
                     creep.say("Out of range");
                 } else {
-                    creep.room.visual.text(_.sum(container.store) + "/" + container.storeCapacity, creep.pos);
+                    creep.room.visual.text(container.store.getUsedCapacity() +
+                    "/" +
+                    container.store.getCapacity(), creep.pos);
                 }
             } else {
                 delete creep.memory.container;

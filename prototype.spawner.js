@@ -51,7 +51,7 @@ StructureSpawn.prototype.spawnIfNeeded = function() {
             this.spawnRole('upgrader', this.room.name);
 
         } else if (this.memory.claimRoom != undefined) {
-            if (this.energyAvailable >= cb.poneerBodyCost) {
+            if (this.room.energyAvailable >= cb.poneerBodyCost) {
                 this.spawnCreep(cb.pioneerBody, String(Game.time),
                     {memory: {role: 'pioneer', target: this.memory.claimRoom, home: this.room.name}});
                 delete this.memory.claimRoom;

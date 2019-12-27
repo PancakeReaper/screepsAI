@@ -13,7 +13,7 @@ module.exports = {
             // If there are any construction sites, build them
             const prioritySites = creep.room.find(FIND_CONSTRUCTION_SITES,
                 {filter: (ps) => ps.structureType == STRUCTURE_EXTENSION ||
-                                 ps.structureType == STRUCTURE_CONTAINER ||
+                                 //ps.structureType == STRUCTURE_CONTAINER ||
                                  ps.structureType == STRUCTURE_TOWER ||
                                  ps.structureType == STRUCTURE_STORAGE});
             const constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
