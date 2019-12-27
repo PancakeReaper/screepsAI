@@ -1,5 +1,6 @@
 require("prototype.creep");
 require("prototype.spawner");
+require("prototype.room");
 var towerAI = require("towerAI");
 var cb = require("controlBoard");
 
@@ -13,9 +14,11 @@ module.exports.loop = function () {
     // --------------------------------------- ROOM AI --------------------------------------- //
     for (const name in Game.rooms) {
         room = Game.rooms[name];
+        room.makeRoads();
         if (room.storage != undefined)
             room.visual.text(room.storage.store[RESOURCE_ENERGY], room.storage.pos);
 
+        // Set up creep count tracker for each room
         creepCount[name] = {};
         for (const role of cb.listOfRoles) {
             creepCount[name][role] = 0;
@@ -24,14 +27,13 @@ module.exports.loop = function () {
 
     // --------------------------------------- SPAWN AI --------------------------------------- //
     for (const name in Game.spawns) {
-        //Game.spawns[name].update();
-        Game.spawns[name].spawnIfNeeded();
-        //Game.spawns[name].analysis();
-
         if (creepCount[Game.spawns[name].room.name] == undefined) {
             creepCount[Game.spawns[name].room.name] = {};
         }
 
+        //Game.spawns[name].update();
+        Game.spawns[name].spawnIfNeeded();
+        //Game.spawns[name].analysis();
     }
 
     // --------------------------------------- CREEP AI --------------------------------------- //
@@ -44,10 +46,6 @@ module.exports.loop = function () {
             creepCount[creep.memory.home][creep.memory.role] += 1;
         else
             creepCount[creep.memory.home][creep.memory.role] = 0;
-
-//        if (creep.memory.role == 'healer') {
-//            creep.memory.target = "W34N2";
-//        }
 
         creep.doRole();
     }
