@@ -23,7 +23,7 @@ module.exports = {
     harvesterShowPath: true,
     harvesterPathColour: '#55ff55',
 
-    upgraderBodyComposition: [WORK, CARRY, MOVE],
+    upgraderBodyComposition: [WORK, WORK, CARRY, MOVE],
     upgraderShowPath: true,
     upgraderPathColour: '#ffff55',
 
@@ -35,7 +35,7 @@ module.exports = {
     repairerBodyComposition: [WORK, CARRY, CARRY, CARRY, MOVE, MOVE],
     repairerShowPath: true,
     repairerPathColour: '#ff5555',
-    repairWallsTo: 30000,
+    repairWallsTo: 10000,
 
     logisticBody: [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
     logisticShowPath: true,
@@ -60,4 +60,15 @@ module.exports = {
     attackerPathColour: '#000000',
 
     partCost: {'tough': 10, 'move': 50, 'carry': 50, 'attack': 80, 'work': 100, 'ranged_attack': 150, 'heal': 250, 'claim': 600},
+
+    buildingPlans: {
+        2: {"extension": 5},
+        3: {"extension": 5, "tower": 1},
+        4: {"extension": 10, "storage": 1},
+        5: {"extension": 10, "tower": 1}, // 2 links
+        6: {"extension": 10, "extractor": 1, "terminal": 1}, // 1 link, 3 labs
+        7: {"extension": 10, "tower": 1}, // 1 link, 3 labs
+        8: {"extension": 10, "tower": 3}, // 2 links, 4 labs, observer, power spawn
+
+    },
 };

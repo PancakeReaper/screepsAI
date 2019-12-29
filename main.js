@@ -6,7 +6,10 @@ var cb = require("controlBoard");
 
 module.exports.loop = function () {
     // --------------------------------------- TODO LIST --------------------------------------- //
-    // TODO: Create better? flee move function for creep
+    // TODO: Refactor into typescript
+    // TODO: Add a Colony class to manage multiroom operations
+    //          - Scout role + Hauler role
+    // TODO: Make spawner build creeps by % and not by parts
     // TODO: Have creeps put a target into memory instead of finding it again every tick [HIGH PRIORITY]
     //             DONE FOR HARVESTER, LOGISTIC,
 
@@ -15,6 +18,7 @@ module.exports.loop = function () {
     for (const name in Game.rooms) {
         room = Game.rooms[name];
         room.makeRoads();
+        //room.makeStructures();
         if (room.storage != undefined)
             room.visual.text(room.storage.store[RESOURCE_ENERGY], room.storage.pos);
 
