@@ -20,21 +20,28 @@ var matrixGenerator = function(roomName) {
     return costs;
 };
 
-Room.prototype.makeRoads = function() {
+/**
+ * Creates roads to sources stemming from given spawner
+ * @param {*.RoomPosition} spawner Anything with a room position will work
+ */
+Room.prototype.makeRoads = function(spawner) {
     if (!this.controller.my)
         return;
     else if (this.controller.reservation != undefined)
         console.log("Oops! Unexpected behaviour in prototype.room.js");
 
     if (this.memory.spawnToSourceRoads == undefined || this.memory.spawnToSourceRoads == false) {
-        roadsToSources(this);
+        roadsToSources(this, spawner);
         this.memory.spawnToSourceRoads = true;
     } else if (this.memory.spawnToController == undefined || this.memory.spawnToController == false) {
-        roadsToController(this);
+        roadsToController(this, spawner);
         this.memory.spawnToController = true;
     }
 };
 
+/**
+ * Creates necessary buildings on Contoller level up
+ */
 Room.prototype.makeStructures = function() {
     if (!this.controller.my || this.memory.controller === 8)
         return;
@@ -61,12 +68,44 @@ Room.prototype.makeStructures = function() {
     this.memory.controller = this.controller.level;
 };
 
-var roadsToController = function(room) {
-    const controller = room.controller;
-    const spawns = room.find(FIND_STRUCTURES, {filter:
-        (s) => s.structureType === STRUCTURE_SPAWN});
+/**
+ * Returns a list of Strings of the neighboring rooms
+ * @return {<String>[]} a list of roomNames
+ */
+Room.prototype.getNeighborRooms = function() {
+    const rooms = [];
+    let cords = this.name.replace(/W|E|S|N/g, " ").trim().split(" ");
+    let axis = this.name.replace(/[0-9]/g, "");
 
-    let paths = PathFinder.search(spawns[0].pos, {pos:controller.pos, range: 1}, {
+    if (axis.charAt(0) === "W") {
+        if (this.find(FIND_EXIT_LEFT).length > 0)
+            rooms.push( axis.charAt(0) + (parseInt(cords[0])+1).toString() + axis.charAt(1) + cords[1] )
+        if (this.find(FIND_EXIT_RIGHT).length > 0)
+            rooms.push( axis.charAt(0) + (parseInt(cords[0])-1).toString() + axis.charAt(1) + cords[1] )
+    } else /* axis.charAt(0) === "E" */ {
+        if (this.find(FIND_EXIT_LEFT).length > 0)
+            rooms.push( axis.charAt(0) + (parseInt(cords[0])-1).toString() + axis.charAt(1) + cords[1] )
+        if (this.find(FIND_EXIT_RIGHT).length > 0)
+            rooms.push( axis.charAt(0) + (parseInt(cords[0])+1).toString() + axis.charAt(1) + cords[1] )
+    }
+    if (axis.charAt(1) === "N") {
+        if (this.find(FIND_EXIT_TOP).length > 0)
+            rooms.push( axis.charAt(0) + cords[0] + axis.charAt(1) + (parseInt(cords[1])+1).toString() )
+        if (this.find(FIND_EXIT_BOTTOM).length > 0)
+            rooms.push( axis.charAt(0) + cords[0] + axis.charAt(1) + (parseInt(cords[1])-1).toString() )
+    } else /* axis.charAt(1) === "S" */ {
+        if (this.find(FIND_EXIT_TOP).length > 0)
+            rooms.push( axis.charAt(0) + cords[0] + axis.charAt(1) + (parseInt(cords[1])-1).toString() )
+        if (this.find(FIND_EXIT_BOTTOM).length > 0)
+            rooms.push( axis.charAt(0) + cords[0] + axis.charAt(1) + (parseInt(cords[1])+1).toString() )
+    }
+    return rooms;
+};
+
+var roadsToController = function(room, spawn) {
+    const controller = room.controller;
+
+    let paths = PathFinder.search(spawn.pos, {pos:controller.pos, range: 1}, {
         swampCost: 1,
         roomCallback: matrixGenerator,
     });
@@ -77,13 +116,11 @@ var roadsToController = function(room) {
     }
 }
 
-var roadsToSources = function(room) {
+var roadsToSources = function(roomm, spawn) {
     const sources = room.find(FIND_SOURCES).concat(room.find(FIND_MINERALS));
-    const spawns = room.find(FIND_STRUCTURES, {filter:
-        (s) => s.structureType === STRUCTURE_SPAWN});
 
     for (i = 0; i < sources.length; i++) {
-        let paths = PathFinder.search(spawns[0].pos, {pos: sources[i].pos, range: 1}, {
+        let paths = PathFinder.search(spawn.pos, {pos: sources[i].pos, range: 1}, {
             swampCost: 1,
             roomCallback: matrixGenerator,
         });
