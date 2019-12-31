@@ -19,18 +19,8 @@ module.exports = {
             return;
         }
 
-        // Emergency repair if a structure has less than 5% health
-        let targets = tower.room.find(FIND_STRUCTURES,
-            {filter: (s) => s.structureType != STRUCTURE_WALL &&
-                            s.structureType != STRUCTURE_RAMPART &&
-                            s.hits / s.hitsMax < 0.05});
-        if (targets.length > 0) {
-            tower.repair(targets[0]);
-            return;
-        }
-
         // Repair walls and ramparts until health === cb.repairWallsTo
-        targets = tower.room.find(FIND_STRUCTURES,
+        let targets = tower.room.find(FIND_STRUCTURES,
             {filter: (s) => (s.structureType == STRUCTURE_WALL ||
                             s.structureType == STRUCTURE_RAMPART) &&
                             s.hits < cb.repairWallsTo});
@@ -38,5 +28,16 @@ module.exports = {
         if (targets.length) {
             tower.repair(targets[0]);
         }
+
+        // Backup repair if a structure has less than 50% health
+        targets = tower.room.find(FIND_STRUCTURES,
+            {filter: (s) => s.structureType != STRUCTURE_WALL &&
+                            s.structureType != STRUCTURE_RAMPART &&
+                            s.hits / s.hitsMax < 0.5});
+        if (targets.length > 0) {
+            tower.repair(targets[0]);
+            return;
+        }
+
     }
 };

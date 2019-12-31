@@ -1,25 +1,5 @@
 var cb = require("controlBoard");
 
-//var numberOfCreeps = {};
-//var population;
-
-/**
- * Updates the numberOfCreeps and population variables
- *   // TODO: Move away from this and store a numberOfCreeps map in memory
- */
- /*
-StructureSpawn.prototype.update = function() {
-    let creeps = _.values(Game.creeps);
-    creeps = _.filter(creeps, (c) => c.memory.home == this.room.name);
-
-    // Takes listOfRoles.length * creeps.length to compute but meh
-    for (const role of cb.listOfRoles) {
-        numberOfCreeps[role] = _.sum(creeps, (c) => c.memory.role == role);
-    }
-    population = creeps.length;
-};
-*/
-
 /**
  * Selects a target for longHarvesters and pioneers
  * @param {string} newTarget A room name (Ex, "W34N1")
@@ -64,13 +44,13 @@ StructureSpawn.prototype.spawnIfNeeded = function() {
             this.spawnRole('repairer', this.room.name);
 
         } else if (this.memory.target != undefined && numberOfCreeps.longHarvester < cb.minimumNumberOfLongHarvesters) {
-            this.spawnRole('longHarvester', this.room.name);
+            this.spawnRole('longHarvester', this.room.name, this.memory.target);
 
         // Will only spawn a logistic if there is a Storage structure in the room
         } else if (this.room.storage != undefined && numberOfCreeps.logistic < cb.minimumNumberOfLogistics) {
-            this.spawnCreep(cb.logisticBody, 'logistic' + String(Game.time),
-                {memory: {role: 'logistic', working: false, home: this.room.name}});
-            //this.spawnRole('logistic');
+            //this.spawnCreep(cb.logisticBody, 'logistic' + String(Game.time),
+            //    {memory: {role: 'logistic', working: false, home: this.room.name}});
+            this.spawnRole('logistic', this.room.name);
 
         } else if (extractor.length > 0 && numberOfCreeps.miner < 1 && extractor[0].pos.lookFor(LOOK_MINERALS)[0].mineralAmount > 0) {
             this.spawnRole('miner', this.room.name);
@@ -78,10 +58,9 @@ StructureSpawn.prototype.spawnIfNeeded = function() {
         } else if (this.memory.target != undefined && Game.rooms[this.memory.target] != undefined &&
                 Game.rooms[this.memory.target].controller.my == false &&
                 (Game.rooms[this.memory.target].controller.reservation == undefined ||
-                Game.rooms[this.memory.target].controller.reservation.ticksToEnd < 100) &&
+                Game.rooms[this.memory.target].controller.reservation.ticksToEnd < 200) &&
                 numberOfCreeps.reserver < 1) {
-            this.spawnCreep(cb.reserverBody, 'reserver' + String(Game.time),
-                {memory: {role: 'reserver', home: this.room.name, target: this.memory.target}});
+            this.spawnRole('reserver', this.room.name, this.memory.target);
         }
     }
 };
@@ -91,36 +70,35 @@ StructureSpawn.prototype.spawnIfNeeded = function() {
  * @param {string} role The name of one of the available roles for a creep
  * @param {string} home The name of the room for the creep to operate in
  */
-StructureSpawn.prototype.spawnRole = function(role, home) {
+StructureSpawn.prototype.spawnRole = function(role, home, target=undefined) {
     const bodyComp = cb[role + "BodyComposition"];
-    let body = [];
     if (bodyComp != undefined) {  // Checks if role doesn't have a FIXED body comp
         let cost = 0;
         for (let part of bodyComp) {
             cost = cost + cb.partCost[part];
         }
+        let body = [];
         const numOfComps = Math.min(Math.floor(this.room.energyAvailable/cost), Math.floor(cb.maxCreepCost/cost));
-//        const numOfComps = Math.floor(this.room.energyAvailable/cost);
         for (let i = 0; i < numOfComps; i++) {
             body = body.concat(bodyComp);
         }
 
-        // If the role does NOT need to specify a target in memory
-        if (role != 'longHarvester' && role != 'pioneer' && role != 'yoinkHarvester') {
-            this.spawnCreep(body, role + String(Game.time), {memory: {role: role, working: false, home: home}});
-        } else if (role == 'yoinkHarvester') {
-            this.spawnCreep(cb.yoinkHarvesterBody, role + String(Game.time),
-                {memory: {role: 'yoinkHarvester', working: false, home: home, target: cb.yoinkHarvesterTarget}});
-        } else if (this.memory.target != undefined) {
-            this.spawnCreep(body, role + String(Game.time), {memory:
-                {role: role, working: false, home: home, target: this.memory.target}});
-        } else {
-            console.log("Tried to make a targeted creep without a target specified! [prototype.spawner.js ln79]");
-        }
-    //} else if (role == 'quarry'){
-        //
+        body.sort( (a, b) => cb.partOrder[a] > cb.partOrder[b]);
+        if (target != undefined)
+            this.spawnCreep(body, role + String(Game.time),
+                    {memory: {role: role, working: false, home: home, target: target}});
+        else
+            this.spawnCreep(body, role + String(Game.time),
+                    {memory: {role: role, working: false, home: home}});
+
     } else {
         console.log("Body composition not specified for role " + role);
+        if (target != undefined)
+            this.spawnCreep(cb[role + "Body"], role + String(Game.time),
+                    {memory: {role: role, working: false, home: home, target: target}});
+        else
+            this.spawnCreep(cb[role + "Body"], role + String(Game.time),
+                    {memory: {role: role, working: false, home: home}});
     }
 };
 

@@ -107,7 +107,7 @@ Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
                 this.memory.source = terminal.id;
             }
             const storage = this.room.storage;
-            if (storage != undefined && storage.store[RESOURCE_ENERGY] > this.store.getFreeeCapacity()) {
+            if (storage != undefined && storage.store[RESOURCE_ENERGY] > this.store.getFreeCapacity()) {
                 this.memory.source = storage.id;
             }
         }

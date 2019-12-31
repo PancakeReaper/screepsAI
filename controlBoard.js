@@ -37,7 +37,7 @@ module.exports = {
     repairerPathColour: '#ff5555',
     repairWallsTo: 10000,
 
-    logisticBody: [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
+    logisticBodyComposition: [CARRY, CARRY, MOVE],
     logisticShowPath: true,
     logisticPathColour: '#55ffff',
 
@@ -47,7 +47,7 @@ module.exports = {
     pioneerBody: [CLAIM, MOVE],
     pioneerPathColour: '#55ffff',
 
-    quarryBody: [WORK, WORK, WORK, WORK, WORK, MOVE],
+    quarryBody: [WORK, WORK, WORK, WORK, WORK, MOVE, MOVE],
 
     longHarvesterBodyComposition: [WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
     longHarvesterShowPath: true,
@@ -55,11 +55,12 @@ module.exports = {
 
     minerBodyComposition: [WORK, CARRY, MOVE],
 
-    reserverBody: [MOVE, MOVE, CLAIM, CLAIM],
+    reserverBodyComposition: [MOVE, CLAIM],
 
     attackerPathColour: '#000000',
 
     partCost: {'tough': 10, 'move': 50, 'carry': 50, 'attack': 80, 'work': 100, 'ranged_attack': 150, 'heal': 250, 'claim': 600},
+    partOrder: {'tough': 1, 'claim':2, 'work': 2, 'ranged_attack':3, 'attack':4, 'heal':5, 'carry':6, 'move':7},
 
     buildingPlans: {
         2: {"extension": 5},
