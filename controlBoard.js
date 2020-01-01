@@ -1,4 +1,5 @@
 module.exports = {
+    USERNAME: "PancakeReaper",
 //Game.spawns.Spawn1.spawnCreep( [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY,  CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE], 'harvester' + String(Game.time), {memory: {role: 'harvester', working: false, home: "W35N3"}});
     MAX_POPULATION: 10,
     // Permitted overflow if needed to meet minimum role numbers
@@ -7,7 +8,7 @@ module.exports = {
     //               Repairer -> Builder -> Upgrader
     maxCreepCost: 1400,
     minimumNumberOfHarvesters: 2,
-    minimumNumberOfUpgraders: 1,
+    minimumNumberOfUpgraders: 2,
     minimumNumberOfBuilders: 1,
     minimumNumberOfRepairers: 1,
     minimumNumberOfLogistics: 1,
@@ -47,7 +48,7 @@ module.exports = {
     pioneerBody: [CLAIM, MOVE],
     pioneerPathColour: '#55ffff',
 
-    quarryBody: [WORK, WORK, WORK, WORK, WORK, MOVE, MOVE],
+    quarryBody: [WORK, WORK, WORK, WORK, WORK, MOVE],
 
     longHarvesterBodyComposition: [WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
     longHarvesterShowPath: true,

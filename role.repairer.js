@@ -9,7 +9,10 @@ module.exports = {
 
         if (!creep.memory.working) {
             // Sends creep to gather energy
-            creep.getEnergy(true, true, true);
+            if (creep.room.name != creep.memory.home)
+                creep.goHome();
+            else
+                creep.getEnergy(true, true, true);
         } else {
             // Repair anything thats not a wall or rampart to max
             const structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {filter: (s) =>

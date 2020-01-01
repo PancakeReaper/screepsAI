@@ -31,9 +31,9 @@ Creep.prototype.doRole = function() {
             delete this.memory.forceMove;
 
     // Make sure creep is in home room before doing role //
-    } else if (this.room.name != this.memory.home && this.memory.target == undefined) {
-        const exit = this.room.findExitTo(this.memory.home);
-        this.moveTo(this.pos.findClosestByPath(exit));
+    //} else if (this.room.name != this.memory.home && this.memory.target == undefined) {
+    //    const exit = this.room.findExitTo(this.memory.home);
+    //    this.moveTo(this.pos.findClosestByPath(exit));
 
     // Creep doesn't have a forceMove issue and is in the right room, proceed with role tasks //
     } else {
@@ -53,7 +53,7 @@ Creep.prototype.update = function() {
 
     if (this.memory.working && _.sum(this.store) == 0) {
         this.memory.working = false;
-    } else if (!this.memory.working && _.sum(this.store) >= this.store.getCapacity()) {
+    } else if (!this.memory.working && this.store.getUsedCapacity() >= this.store.getCapacity()) {
         this.memory.working = true;
     }
 };
@@ -63,6 +63,7 @@ Creep.prototype.update = function() {
  * @param {RoomPosition | *.RoomPosition} target
  */
 Creep.prototype.signaledMove = function(target) {
+    if (target == undefined) return;
     if (cb[this.memory.role + "ShowPath"] != undefined && cb[this.memory.role + "ShowPath"]) {
         this.room.visual.line(this.pos, target.pos, {color: cb[this.memory.role + "PathColour"]});
     }
@@ -82,6 +83,16 @@ Creep.prototype.moveAway = function(target) {
 };
 
 /**
+ * Makes the creep return to it's home base
+ * @param {RoomPosition | *.RoomPosition} target
+ */
+Creep.prototype.goHome = function() {
+    const exit = this.room.findExitTo(this.memory.home);
+    if (exit != undefined)
+        this.signaledMove(this.pos.findClosestByPath(exit));
+}
+
+/**
  * Attempts to get Energy with the following priority:
  *     Dropped Energy -> Tombstones -> Containers -> Storage -> Sources
  * @param {Boolean} fromContainer Is allowed to collect energy from containers?
@@ -89,8 +100,15 @@ Creep.prototype.moveAway = function(target) {
  * @param {Boolean} fromStorage Is allowed to collect energy from the room's Storage?
  */
 Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
+    // Temp here, until we get full conolony refactor working
+    //if (this.room.name != this.memory.home && this.memory.target == undefined) {
+    //    const exit = this.room.findExitTo(this.memory.home);
+    //    this.moveTo(this.pos.findClosestByPath(exit));
+    //    return;
+    //}
+
     // Both these check function will return true if found
-    if (this.checkIfCarryingMinerals() || this.checkForDroppedResources(20, false))
+    if (this.checkIfCarryingMinerals() || this.checkForDroppedResources(10, false))
         return;
 
     if (this.memory.source == undefined) {
@@ -102,11 +120,13 @@ Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
         }
         // Rewrite memory.source to storage if available
         if (fromStorage) {
-            const terminal = this.room.terminal;
+            //const terminal = this.room.terminal;
+            const terminal = Game.rooms[this.memory.home].terminal;
             if (terminal != undefined && terminal.store[RESOURCE_ENERGY] > this.store.getFreeCapacity()) {
                 this.memory.source = terminal.id;
             }
-            const storage = this.room.storage;
+            //const storage = this.room.storage;
+            const storage = Game.rooms[this.memory.home].storage;
             if (storage != undefined && storage.store[RESOURCE_ENERGY] > this.store.getFreeCapacity()) {
                 this.memory.source = storage.id;
             }
@@ -148,7 +168,7 @@ Creep.prototype.checkForDroppedResources = function(range, pickupMinerals) {
     let droppedEnergy = this.pos.findInRange(FIND_DROPPED_RESOURCES, range);
     if (!pickupMinerals)
         droppedEnergy = _.filter(droppedEnergy, (i) => i.resourceType == RESOURCE_ENERGY);
-    if (droppedEnergy != undefined && droppedEnergy.length > 0) {
+    if (droppedEnergy != undefined && droppedEnergy.length > 0 && droppedEnergy[0].amount >= 50) {
         if (this.pickup(droppedEnergy[0]) == ERR_NOT_IN_RANGE) {
             this.signaledMove(droppedEnergy[0]);
         }

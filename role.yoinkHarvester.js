@@ -9,7 +9,7 @@ module.exports = {
             // If in target room gather energy, otherwise move to target room
             if (creep.room.name == creep.memory.target) {
                 let target = creep.pos.findClosestByPath(FIND_STRUCTURES,
-                    {filter: (s) => (s.store[RESOURCE_ENERGY] != undefined &&
+                    {filter: (s) => (s.store != undefined &&
                                     s.store[RESOURCE_ENERGY] > 0)});
                     /*
                     {filter: (s) => ((s.structureType == STRUCTURE_CONTAINER ||
@@ -41,7 +41,7 @@ module.exports = {
                                     s.structureType == STRUCTURE_SPAWN ||
                                     s.structureType == STRUCTURE_CONTAINER ||
                                     s.structureType == STRUCTURE_STORAGE) &&
-                                    s.store.getUsedCapacity() > s.store.getCapacity()});
+                                    s.store.getUsedCapacity() < s.store.getCapacity()});
 
                 if (target != undefined) {
                     if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {

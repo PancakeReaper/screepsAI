@@ -12,26 +12,29 @@ module.exports = {
                                 s.store.getUsedCapacity() < s.store.getCapacity()});
             if (container != undefined)
                 creep.memory.container = container.id;
-            else
+            else {
+                creep.say("NO CONTAINER");
                 return;
+            }
         }
         const container = Game.getObjectById(creep.memory.container);
 
         if (!creep.pos.isEqualTo(container.pos)) {
             creep.signaledMove(container);
-            delete creep.memory.container;
+            // Resolves container conflicts between other quarries
+            //delete creep.memory.container;  // <- there should be a better way to do this
         } else {
             const energy_source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
+            if (creep.harvest(energy_source) == ERR_NOT_IN_RANGE) {
+                creep.say("Out of range");
+            }
             if (container.store.getUsedCapacity() < container.store.getCapacity()) {
-                if (creep.harvest(energy_source) == ERR_NOT_IN_RANGE) {
-                    creep.say("Out of range");
-                } else {
-                    creep.room.visual.text(container.store.getUsedCapacity() +
+                creep.room.visual.text(container.store.getUsedCapacity() +
                     "/" +
                     container.store.getCapacity(), creep.pos);
-                }
             } else {
-                delete creep.memory.container;
+                let dropped = creep.pos.lookFor(LOOK_ENERGY);
+                creep.room.visual.text("+" + dropped.amount, creep.pos, {color: 'green'});
             }
         }
     }

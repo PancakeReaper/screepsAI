@@ -58,7 +58,7 @@ StructureSpawn.prototype.spawnIfNeeded = function() {
         } else if (this.memory.target != undefined && Game.rooms[this.memory.target] != undefined &&
                 Game.rooms[this.memory.target].controller.my == false &&
                 (Game.rooms[this.memory.target].controller.reservation == undefined ||
-                Game.rooms[this.memory.target].controller.reservation.ticksToEnd < 200) &&
+                Game.rooms[this.memory.target].controller.reservation.ticksToEnd < 300) &&
                 numberOfCreeps.reserver < 1) {
             this.spawnRole('reserver', this.room.name, this.memory.target);
         }
@@ -82,6 +82,8 @@ StructureSpawn.prototype.spawnRole = function(role, home, target=undefined) {
         for (let i = 0; i < numOfComps; i++) {
             body = body.concat(bodyComp);
         }
+        if (role == 'quarry' && this.room.energyAvailable >= 650)  // 650 is hard coded cost for quarry
+            body = body.concat([MOVE, MOVE]);
 
         body.sort( (a, b) => cb.partOrder[a] > cb.partOrder[b]);
         if (target != undefined)
@@ -101,6 +103,36 @@ StructureSpawn.prototype.spawnRole = function(role, home, target=undefined) {
                     {memory: {role: role, working: false, home: home}});
     }
 };
+StructureSpawn.prototype.spawnRole2 = function(role, memory=undefined) {
+    let memoryPart;
+    if (memory != undefined) {
+        memoryPart = memory;
+    } else {
+        memoryPart = {role: role, working: false, home: this.room.name};
+    }
+
+    const bodyComp = cb[role + "BodyComposition"];
+    if (bodyComp != undefined) {  // Checks if role doesn't have a FIXED body comp
+        let cost = 0;
+        for (let part of bodyComp) {
+            cost = cost + cb.partCost[part];
+        }
+        let body = [];
+        const numOfComps = Math.min(Math.floor(this.room.energyAvailable/cost), Math.floor(cb.maxCreepCost/cost));
+        for (let i = 0; i < numOfComps; i++) {
+            body = body.concat(bodyComp);
+        }
+
+        body.sort( (a, b) => cb.partOrder[a] > cb.partOrder[b]);
+        this.spawnCreep(body, role + String(Game.time), {memory: memoryPart})
+    } else {
+        let body = cb[role + "Body"];
+        if (role == 'quarry' && this.spawnCreep(body.concat([MOVE,MOVE]), "dryrun", {dryRun: true}) == OK)
+            body = body.concat([MOVE, MOVE]);
+        this.spawnCreep(body, role + String(Game.time),
+                {memory: memoryPart});
+    }
+}
 
 /**
  * Creates an pioneer creep which moves to target room and attempts to claim it
@@ -116,7 +148,19 @@ StructureSpawn.prototype.spawnPioneer = function(target) {
  * @param {string} target A room name from which to steal energy from
  */
 StructureSpawn.prototype.spawnYoinkHarvester = function(target) {
-    return this.spawnCreep(cb.yoinkHarvesterBody, String(Game.time),
+    const bodyComp = cb.yoinkHarvesterBodyComposition;
+    let cost = 0;
+    for (let part of bodyComp) {
+        cost = cost + cb.partCost[part];
+    }
+    let body = [];
+    const numOfComps = Math.min(Math.floor(this.room.energyAvailable/cost), Math.floor(cb.maxCreepCost/cost));
+    for (let i = 0; i < numOfComps; i++) {
+        body = body.concat(bodyComp);
+    }
+
+    body.sort( (a, b) => cb.partOrder[a] > cb.partOrder[b]);
+    return this.spawnCreep(body, String(Game.time),
         {memory: {role: 'yoinkHarvester', working: false, home: this.room.name, target: target}});
 };
 
@@ -125,7 +169,7 @@ StructureSpawn.prototype.spawnYoinkHarvester = function(target) {
  * @param {string} target A room name from which to attack creeps in
  */
 StructureSpawn.prototype.spawnAttacker = function(target) {
-    return this.spawnCreep( [TOUGH, MOVE, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK], "attacker" + String(Game.time),
+    return this.spawnCreep( [TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK], "attacker" + String(Game.time),
         {memory: {role: 'attacker', home: this.room.name, target: target}});
 };
 

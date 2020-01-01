@@ -12,7 +12,10 @@ module.exports = {
                             s.store[RESOURCE_ENERGY] < s.store.getCapacity([RESOURCE_ENERGY])});
 
         if (energy.length > 0) {
-            roleHarvester.run(creep);
+            if (!creep.memory.working)
+                creep.getEnergy(false, false, true);
+            else
+                roleHarvester.run(creep);
             return;
         }
 

@@ -13,7 +13,7 @@ module.exports = {
             // If in target room gather energy, otherwise move to target room
             if (creep.room.name == creep.memory.target) {
                 // Sends creep to gather enerygy
-                creep.getEnergy(true, true, true);
+                creep.getEnergy(true, true, false);
             } else {
                 const exit = creep.room.findExitTo(creep.memory.target);
                 creep.moveTo(creep.pos.findClosestByPath(exit));

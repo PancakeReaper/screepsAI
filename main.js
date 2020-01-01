@@ -4,21 +4,26 @@ require("prototype.room");
 var towerAI = require("towerAI");
 var cb = require("controlBoard");
 
+var Colony = require("class.colony");
+
 module.exports.loop = function () {
     // --------------------------------------- TODO LIST --------------------------------------- //
-    // TODO: Refactor into typescript
     // TODO: Add a Colony class to manage multiroom operations
+    //          - Refactor entire spawning algo into Colony class
     //          - Scout role + Hauler role
     // TODO: Make spawner build creeps by % and not by parts
     // TODO: Have creeps put a target into memory instead of finding it again every tick [HIGH PRIORITY]
     //             DONE FOR HARVESTER, LOGISTIC,
 
-    let creepCount = {};
+    var colonyW22S44 = new Colony("W22S44");
+    colonyW22S44.loop();
+    Memory["W22S44"] = colonyW22S44;
+
+    let creepCount = {}; // move creep count into Colony.js
     // --------------------------------------- ROOM AI --------------------------------------- //
     for (const name in Game.rooms) {
         room = Game.rooms[name];
-        room.makeRoads();
-        //room.makeStructures();
+        //room.makeRoads(Game.spawns.Spawn1);
         if (room.storage != undefined)
             room.visual.text(room.storage.store[RESOURCE_ENERGY], room.storage.pos);
 

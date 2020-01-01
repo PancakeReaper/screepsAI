@@ -9,8 +9,9 @@ module.exports = {
             // Sends creep to gather Engery
             creep.getEnergy(true, true, true);
         } else {
-            creep.signaledMove(creep.room.controller);
-            creep.upgradeController(creep.room.controller);
+            const colony = Memory[creep.memory.home];
+            creep.signaledMove(Game.rooms[colony.mainRoomName].controller);
+            creep.upgradeController(Game.rooms[colony.mainRoomName].controller);
         }
     }
 };

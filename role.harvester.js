@@ -8,7 +8,11 @@ module.exports = {
 
         if (!creep.memory.working) {
             // Sends creep to gather enerygy
-            creep.getEnergy(true, true, true);
+            if (creep.room.name != creep.memory.home)
+                creep.goHome();
+            else
+                creep.getEnergy(true, true, true);
+
         } else {
             // Selecting the target to fill up
             if (creep.memory.energy == undefined) {
@@ -24,6 +28,7 @@ module.exports = {
                 else {
                     let structures = creep.room.find(FIND_MY_STRUCTURES,
                         {filter: (s) => s.structureType != STRUCTURE_LINK &&
+                                        s.structureType != STRUCTURE_STORAGE &&
                                         s.store != undefined && s.store[RESOURCE_ENERGY] < s.store.getCapacity(RESOURCE_ENERGY)});
                     structures = _.sortBy(structures, (s) => s.store[RESOURCE_ENERGY] / s.store.getCapacity(RESOURCE_ENERGY));
                     if (structures != undefined && structures.length > 0)
