@@ -4,16 +4,21 @@ var roleBuilder = require("role.builder");
 module.exports = {
 
     run: function(creep) {
+
+
         // Updates creep's memory variables
         creep.update();
-
         if (!creep.memory.working) {
-            // Sends creep to gather energy
-            if (creep.room.name != creep.memory.home)
-                creep.goHome();
-            else
-                creep.getEnergy(true, true, true);
+            // Sends creep to gather energy (no storage)
+             creep.getEnergy(true, true, false);
         } else {
+            // Move to target room before doing anything
+            if (creep.memory.target != undefined && creep.room.name != creep.memory.target) {
+                const exit = creep.room.findExitTo(creep.memory.target);
+                creep.moveTo(creep.pos.findClosestByPath(exit));
+                return;
+            }
+
             // Repair anything thats not a wall or rampart to max
             const structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {filter: (s) =>
                 (s.structureType != STRUCTURE_WALL &&

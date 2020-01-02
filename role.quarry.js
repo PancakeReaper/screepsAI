@@ -34,7 +34,8 @@ module.exports = {
                     container.store.getCapacity(), creep.pos);
             } else {
                 let dropped = creep.pos.lookFor(LOOK_ENERGY);
-                creep.room.visual.text("+" + dropped.amount, creep.pos, {color: 'green'});
+                if (dropped.length)
+                    creep.room.visual.text("+" + dropped[0].amount, creep.pos, {color: 'green'});
             }
         }
     }

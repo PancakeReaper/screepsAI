@@ -1,9 +1,5 @@
 module.exports = {
     USERNAME: "PancakeReaper",
-//Game.spawns.Spawn1.spawnCreep( [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY,  CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE], 'harvester' + String(Game.time), {memory: {role: 'harvester', working: false, home: "W35N3"}});
-    MAX_POPULATION: 10,
-    // Permitted overflow if needed to meet minimum role numbers
-    POPULATION_OVERFLOW: 3, // Typically keep at 2 for quarries
     // LongHarvester -> Harvester --v
     //               Repairer -> Builder -> Upgrader
     maxCreepCost: 1400,
@@ -71,6 +67,5 @@ module.exports = {
         6: {"extension": 10, "extractor": 1, "terminal": 1}, // 1 link, 3 labs
         7: {"extension": 10, "tower": 1}, // 1 link, 3 labs
         8: {"extension": 10, "tower": 3}, // 2 links, 4 labs, observer, power spawn
-
     },
 };

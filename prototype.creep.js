@@ -51,7 +51,7 @@ Creep.prototype.doRole = function() {
 Creep.prototype.update = function() {
     if (cb.speakYourRole) this.room.visual.text(this.ticksToLive, this.pos, {color: cb[this.memory.role + "PathColour"]});
 
-    if (this.memory.working && _.sum(this.store) == 0) {
+    if (this.memory.working && this.store.getUsedCapacity() == 0) {
         this.memory.working = false;
     } else if (!this.memory.working && this.store.getUsedCapacity() >= this.store.getCapacity()) {
         this.memory.working = true;
@@ -100,15 +100,8 @@ Creep.prototype.goHome = function() {
  * @param {Boolean} fromStorage Is allowed to collect energy from the room's Storage?
  */
 Creep.prototype.getEnergy = function(fromContainer, fromSource, fromStorage) {
-    // Temp here, until we get full conolony refactor working
-    //if (this.room.name != this.memory.home && this.memory.target == undefined) {
-    //    const exit = this.room.findExitTo(this.memory.home);
-    //    this.moveTo(this.pos.findClosestByPath(exit));
-    //    return;
-    //}
-
     // Both these check function will return true if found
-    if (this.checkIfCarryingMinerals() || this.checkForDroppedResources(10, false))
+    if (this.checkIfCarryingMinerals() || this.checkForDroppedResources(4, false))
         return;
 
     if (this.memory.source == undefined) {
